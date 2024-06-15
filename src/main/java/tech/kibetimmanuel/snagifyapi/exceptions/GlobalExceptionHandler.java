@@ -32,11 +32,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleCustomException(CustomException exception) {
         CustomErrorResponse customErrorResponse = new CustomErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatusCode.valueOf(exception.getStatus()).value(),
                 exception.getMessage(),
                 System.currentTimeMillis()
         );
-        return ResponseEntity.badRequest().body(customErrorResponse);
+        return ResponseEntity.status(exception.getStatus()).body(customErrorResponse);
 
     }
 
