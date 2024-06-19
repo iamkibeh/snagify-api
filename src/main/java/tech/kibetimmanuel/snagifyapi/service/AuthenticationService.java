@@ -45,7 +45,7 @@ public class AuthenticationService {
         return LoginResponse.builder()
                 .user(userService.mapUserToResponse(authenticatedUser))
                 .accessToken(jwtService.generateToken(authenticatedUser))
-                .refreshToken(jwtService.generateRefreshToken(authenticatedUser))
+//                .refreshToken(jwtService.generateRefreshToken(authenticatedUser))
                 .expiresIn(jwtService.getAccessTokenExpiration())
                 .build();
     }
@@ -63,7 +63,7 @@ public class AuthenticationService {
                     String accessToken = jwtService.generateToken(user);
                     Map<String, Object> authResponse = new HashMap<>();
                     authResponse.put("access_token", accessToken);
-                    authResponse.put("refresh_token", refreshToken);
+//                    authResponse.put("refresh_token", refreshToken);
                     authResponse.put("expires_in", jwtService.getAccessTokenExpiration());
                     response.setContentType("application/json");
                     new ObjectMapper().writeValue(response.getOutputStream(), authResponse);

@@ -37,6 +37,8 @@ public class User implements UserDetails {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<JobApplication> applications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

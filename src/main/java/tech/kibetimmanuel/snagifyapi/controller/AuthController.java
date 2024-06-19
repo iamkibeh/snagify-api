@@ -32,7 +32,8 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginUserDto credentials) {
         User authenticatedUser = authenticationService.authenticate(credentials);
         var response = authenticationService.mapUserToDto(authenticatedUser);
-        ResponseCookie jwtRefreshCookie = jwtService.generateJwtRefreshTokenCookie(response.getRefreshToken());
+        String refreshToken = jwtService.generateRefreshToken(authenticatedUser);
+        ResponseCookie jwtRefreshCookie = jwtService.generateJwtRefreshTokenCookie(refreshToken);
         return  ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
                 .body(response);
