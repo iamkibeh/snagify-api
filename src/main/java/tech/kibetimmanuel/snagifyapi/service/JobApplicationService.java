@@ -5,10 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationRequest;
+import tech.kibetimmanuel.snagifyapi.dto.JobApplicationResponse;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationUpdateRequest;
 import tech.kibetimmanuel.snagifyapi.entity.JobApplication;
 import tech.kibetimmanuel.snagifyapi.entity.User;
@@ -40,12 +44,30 @@ public class JobApplicationService {
         return jobApplicationRepo.save(applied);
     }
 
-    public List<JobApplication> getAllApplications() {
-        return jobApplicationRepo.findAll();
+    public JobApplicationResponse getAllApplications(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<JobApplication> jobApplications = jobApplicationRepo.findAll(pageable);
+        return JobApplicationResponse.builder()
+                .content(jobApplications.getContent())
+                .pageNo(jobApplications.getNumber())
+                .pageSize(jobApplications.getSize())
+                .totalPages(jobApplications.getTotalPages())
+                .totalRecords(jobApplications.getTotalElements())
+                .last(jobApplications.isLast())
+                .build();
     }
 
-    public List<JobApplication> getMyApplications() {
-        return jobApplicationRepo.findByUser(currentUser());
+    public JobApplicationResponse getMyApplications(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<JobApplication> jobApplications = jobApplicationRepo.findByUser(currentUser(), pageable);
+        return JobApplicationResponse.builder()
+                .content(jobApplications.getContent())
+                .pageNo(jobApplications.getNumber())
+                .pageSize(jobApplications.getSize())
+                .totalPages(jobApplications.getTotalPages())
+                .totalRecords(jobApplications.getTotalElements())
+                .last(jobApplications.isLast())
+                .build();
     }
 
     public Optional<JobApplication> getApplication(UUID id) {

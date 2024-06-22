@@ -1,15 +1,16 @@
 package tech.kibetimmanuel.snagifyapi.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationRequest;
+import tech.kibetimmanuel.snagifyapi.dto.JobApplicationResponse;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationUpdateRequest;
 import tech.kibetimmanuel.snagifyapi.entity.JobApplication;
 import tech.kibetimmanuel.snagifyapi.service.JobApplicationService;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,13 +28,16 @@ public class JobApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JobApplication>> getApplications(@RequestParam(value = "currentUser", required = false) Boolean currentUser){
-        if (currentUser !=null && currentUser){
-            List<JobApplication> myApplications = jobApplicationService.getMyApplications();
-            return ResponseEntity.ok().body(myApplications);
+    public ResponseEntity<JobApplicationResponse> getApplications(
+            @RequestParam(value = "currentUser", required = false, defaultValue = "false") String currentUser,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "10", required = false) int size
+    ){
+        if (currentUser !=null && currentUser.equals("true")){
+            return ResponseEntity.ok().body(jobApplicationService.getMyApplications(page, size));
         }
          else {
-            return ResponseEntity.ok().body(jobApplicationService.getAllApplications());
+            return ResponseEntity.ok().body(jobApplicationService.getAllApplications(page, size));
         }
     }
 
