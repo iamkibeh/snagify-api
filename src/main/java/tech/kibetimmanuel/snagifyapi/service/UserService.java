@@ -21,6 +21,7 @@ public class UserService {
     public UserResponse mapUserToResponse(User currentUser) {
         return UserResponse.builder()
                 .id(currentUser.getId())
+                .name(currentUser.getName())
                 .email(currentUser.getEmail())
                 .roles(currentUser.getAuthorities())
                 .enabled(currentUser.isEnabled())

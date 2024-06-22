@@ -18,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -27,7 +26,6 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             User currentUser = (User) authentication.getPrincipal();
-            log.info("This is the current user -> {}", currentUser);
             return ResponseEntity.ok(userService.mapUserToResponse(currentUser));
         } else {
             // Handle expired token case (e.g., return 401 or specific error message)

@@ -14,6 +14,9 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class RegisterUserDto {
+    @NotEmpty(message = "Name cannot be empty")
+    @NotBlank(message = "Name cannot be blank")
+    private String name;
     @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     @NotEmpty(message = "Email cannot be empty")
     private String email;
