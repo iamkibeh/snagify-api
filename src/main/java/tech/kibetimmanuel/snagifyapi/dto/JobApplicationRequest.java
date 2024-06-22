@@ -2,8 +2,6 @@ package tech.kibetimmanuel.snagifyapi.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import tech.kibetimmanuel.snagifyapi.enums.ApplicationStage;
 
 import java.time.LocalDate;
 
@@ -15,4 +13,6 @@ public class JobApplicationRequest {
     private String source;
     private LocalDate applicationDate;
     private String location;
+    private String applicationStage;
+    private String jobDescription;
 }

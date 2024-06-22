@@ -34,6 +34,7 @@ public class AuthenticationService {
 
     public User signup(RegisterUserDto userInput) {
         User user = User.builder()
+                .name(userInput.getName())
                 .email(userInput.getEmail())
                 .password(passwordEncoder.encode(userInput.getPassword()))
                 .build();

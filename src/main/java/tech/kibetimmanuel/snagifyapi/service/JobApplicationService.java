@@ -31,8 +31,9 @@ public class JobApplicationService {
                 .companyName(application.getCompanyName())
                 .source(application.getSource())
                 .location(application.getLocation())
-                .applicationStage(ApplicationStage.valueOf("APPLIED"))
+                .applicationStage(ApplicationStage.valueOf(application.getApplicationStage()))
                 .applicationDate(application.getApplicationDate())
+                .jobDescription(application.getJobDescription())
                 .user(currentUser())
                 .build();
 
@@ -47,8 +48,8 @@ public class JobApplicationService {
         return jobApplicationRepo.findByUser(currentUser());
     }
 
-    public Optional<JobApplication> getApplication(Long id) {
-        Optional<JobApplication> optionalJobApplication = jobApplicationRepo.findById(id);
+    public Optional<JobApplication> getApplication(UUID id) {
+        Optional<JobApplication> optionalJobApplication = optionalJobApplication(id);
         if(optionalJobApplication.isEmpty()){
             throw new ResourceNotFound("Job application with ID " + id + " not found.");
         }
@@ -56,8 +57,8 @@ public class JobApplicationService {
     }
 
     @Transactional
-    public JobApplication updateApplication(Long id, JobApplicationUpdateRequest updateRequest) {
-        Optional<JobApplication> optionalApplication = jobApplicationRepo.findById(id);
+    public JobApplication updateApplication(UUID id, JobApplicationUpdateRequest updateRequest) {
+        Optional<JobApplication> optionalApplication = optionalJobApplication(id);
         if (optionalApplication.isPresent()) {
             JobApplication application = optionalApplication.get();
             BeanUtils.copyProperties(updateRequest, application, getNullPropertyNames(updateRequest));
@@ -85,4 +86,16 @@ public class JobApplicationService {
         return (User) authentication.getPrincipal();
     }
 
+    public void delete(UUID id) {
+        Optional<JobApplication> optionalJobApplication = optionalJobApplication(id);
+        if(optionalJobApplication.isEmpty()){
+            throw new ResourceNotFound("Job application with ID " + id + " not found.");
+        }
+        jobApplicationRepo.deleteById(id);
+    }
+
+    private Optional<JobApplication> optionalJobApplication(UUID id) {
+        return  jobApplicationRepo.findById(id);
+    }
 }
+

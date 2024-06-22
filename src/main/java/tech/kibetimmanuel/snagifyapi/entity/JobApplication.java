@@ -25,8 +25,8 @@ import java.util.UUID;
 @Table(name = "job_application")
 public class JobApplication {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     @Column(nullable = false)
     private String jobTitle;
     @Column(nullable = false)
@@ -36,6 +36,10 @@ public class JobApplication {
     private LocalDate applicationDate;
     private ApplicationStage applicationStage;
     private String location;
+
+    @Column(columnDefinition = "TEXT")
+    private String jobDescription;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
     private Date createdAt;

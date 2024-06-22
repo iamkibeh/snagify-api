@@ -13,4 +13,5 @@ public class JobApplicationUpdateRequest {
     private LocalDate applicationDate;
     private ApplicationStage applicationStage;
     private String location;
+    private String jobDescription;
 }

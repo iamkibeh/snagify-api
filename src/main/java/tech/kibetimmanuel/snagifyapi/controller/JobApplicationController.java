@@ -11,6 +11,7 @@ import tech.kibetimmanuel.snagifyapi.service.JobApplicationService;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/applications")
@@ -37,15 +38,21 @@ public class JobApplicationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<JobApplication>> getApplication(@PathVariable Long id){
+    public ResponseEntity<Optional<JobApplication>> getApplication(@PathVariable UUID id){
         Optional<JobApplication> application = jobApplicationService.getApplication(id);
         return ResponseEntity.ok().body(application);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<JobApplication> updateApplication(@PathVariable Long id, @RequestBody JobApplicationUpdateRequest updateRequest) {
+    public ResponseEntity<JobApplication> updateApplication(@PathVariable UUID id, @RequestBody JobApplicationUpdateRequest updateRequest) {
         JobApplication updatedApplication = jobApplicationService.updateApplication(id, updateRequest);
         return ResponseEntity.ok().body(updatedApplication);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteApplication(@PathVariable UUID id) {
+        jobApplicationService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
