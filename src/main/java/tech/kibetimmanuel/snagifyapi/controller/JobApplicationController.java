@@ -2,15 +2,21 @@ package tech.kibetimmanuel.snagifyapi.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationRequest;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationResponse;
 import tech.kibetimmanuel.snagifyapi.dto.JobApplicationUpdateRequest;
 import tech.kibetimmanuel.snagifyapi.entity.JobApplication;
+import tech.kibetimmanuel.snagifyapi.service.AuthenticationService;
 import tech.kibetimmanuel.snagifyapi.service.JobApplicationService;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JobApplicationController {
     private final JobApplicationService  jobApplicationService;
+    private final AuthenticationService authenticationService;
 
     @PostMapping
     public ResponseEntity<JobApplication> createApplication(@RequestBody JobApplicationRequest application) {
@@ -59,4 +66,15 @@ public class JobApplicationController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<JobApplicationResponse> searchJobApplications(
+            @RequestParam String query,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        JobApplicationResponse jobApplicationResponse = jobApplicationService.searchJobApplications(authenticationService.currentUser().getId(), query, pageable);
+        return ResponseEntity.ok(jobApplicationResponse);
+    }
 }

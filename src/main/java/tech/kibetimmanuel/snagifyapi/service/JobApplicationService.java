@@ -116,6 +116,19 @@ public class JobApplicationService {
         jobApplicationRepo.deleteById(id);
     }
 
+
+    public JobApplicationResponse  searchJobApplications(UUID userId, String search, Pageable pageable) {
+        Page<JobApplication> jobApplications = jobApplicationRepository.searchJobApplications(userId, search, pageable);
+        return JobApplicationResponse.builder()
+                .content(jobApplications.getContent())
+                .pageNo(jobApplications.getNumber())
+                .pageSize(jobApplications.getSize())
+                .totalPages(jobApplications.getTotalPages())
+                .totalRecords(jobApplications.getTotalElements())
+                .last(jobApplications.isLast())
+                .build();
+    }
+
     private Optional<JobApplication> optionalJobApplication(UUID id) {
         return  jobApplicationRepo.findById(id);
     }
