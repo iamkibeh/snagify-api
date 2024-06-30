@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import tech.kibetimmanuel.snagifyapi.entity.User;
+import tech.kibetimmanuel.snagifyapi.repository.TokenRepository;
 import tech.kibetimmanuel.snagifyapi.repository.UserRepository;
 import tech.kibetimmanuel.snagifyapi.service.JwtService;
 

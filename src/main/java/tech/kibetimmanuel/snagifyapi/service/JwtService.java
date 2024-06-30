@@ -8,12 +8,16 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.WebUtils;
+import tech.kibetimmanuel.snagifyapi.entity.Token;
 import tech.kibetimmanuel.snagifyapi.entity.User;
+import tech.kibetimmanuel.snagifyapi.enums.TokenType;
+import tech.kibetimmanuel.snagifyapi.repository.TokenRepository;
 
 import java.security.Key;
 import java.util.Date;
@@ -22,6 +26,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
     @Value("${spring.security.jwt.secret-key}")
     private String secretKey;
@@ -35,6 +40,9 @@ public class JwtService {
 
     @Value("${spring.security.jwt.refresh-token-cookie}")
     private String jwtRefreshCookie;
+
+    private final TokenRepository tokenRepo;
+
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -91,7 +99,9 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        boolean isValidToken = tokenRepo.findByToken(token)
+                .map(t-> !t.isExpired() && !t.isRevoked()).orElse(false);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token)) && isValidToken;
     }
 
     public ResponseCookie generateJwtRefreshTokenCookie(String refreshToken) {
@@ -112,10 +122,6 @@ public class JwtService {
 
     private String getCookieValueByName(HttpServletRequest request, String name) {
         Cookie cookie = WebUtils.getCookie(request, name);
-        if (cookie != null) {
-            return cookie.getValue();
-        } else {
-            return null;
-        }
+        return cookie != null ? cookie.getValue() : null;
     }
 }

@@ -16,6 +16,7 @@ import tech.kibetimmanuel.snagifyapi.dto.UserResponse;
 import tech.kibetimmanuel.snagifyapi.entity.User;
 import tech.kibetimmanuel.snagifyapi.service.AuthenticationService;
 import tech.kibetimmanuel.snagifyapi.service.JwtService;
+import tech.kibetimmanuel.snagifyapi.service.TokenService;
 import tech.kibetimmanuel.snagifyapi.service.UserService;
 
 import java.io.IOException;
@@ -27,16 +28,26 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
     private final JwtService  jwtService;
+    private final TokenService tokenService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginUserDto credentials) {
         User authenticatedUser = authenticationService.authenticate(credentials);
-        var response = authenticationService.mapUserToDto(authenticatedUser);
+
+        String accessToken = jwtService.generateToken(authenticatedUser);
         String refreshToken = jwtService.generateRefreshToken(authenticatedUser);
+
+        tokenService.handleLogin(authenticatedUser, accessToken, refreshToken);
+        // generate refresh token cookie
         ResponseCookie jwtRefreshCookie = jwtService.generateJwtRefreshTokenCookie(refreshToken);
+        LoginResponse loginResponse = LoginResponse.builder()
+                .user(userService.mapUserToResponse(authenticatedUser))
+                .accessToken(accessToken)
+                .expiresIn(jwtService.getAccessTokenExpiration())
+                .build();
         return  ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtRefreshCookie.toString())
-                .body(response);
+                .body(loginResponse);
     }
 
 

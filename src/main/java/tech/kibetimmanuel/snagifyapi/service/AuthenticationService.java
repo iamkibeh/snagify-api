@@ -9,10 +9,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import tech.kibetimmanuel.snagifyapi.dto.LoginResponse;
 import tech.kibetimmanuel.snagifyapi.dto.LoginUserDto;
 import tech.kibetimmanuel.snagifyapi.dto.RegisterUserDto;
+import tech.kibetimmanuel.snagifyapi.entity.Token;
 import tech.kibetimmanuel.snagifyapi.entity.User;
+import tech.kibetimmanuel.snagifyapi.enums.TokenType;
+import tech.kibetimmanuel.snagifyapi.repository.TokenRepository;
 import tech.kibetimmanuel.snagifyapi.repository.UserRepository;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ public class AuthenticationService {
     private final UserRepository userRepo;
     private final UserService userService;
     private final JwtService jwtService;
+    private final TokenRepository tokenRepo;
 
     public User authenticate(LoginUserDto userInput) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userInput.getEmail(), userInput.getPassword()));
@@ -43,26 +46,28 @@ public class AuthenticationService {
         return userRepo.save(user);
     }
 
-    public LoginResponse mapUserToDto(User authenticatedUser) {
-        return LoginResponse.builder()
-                .user(userService.mapUserToResponse(authenticatedUser))
-                .accessToken(jwtService.generateToken(authenticatedUser))
-//                .refreshToken(jwtService.generateRefreshToken(authenticatedUser))
-                .expiresIn(jwtService.getAccessTokenExpiration())
-                .build();
-    }
 
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String refreshToken = jwtService.getJwtRefreshTokenFromCookies(request);
         if (refreshToken != null) {
             final String email = jwtService.extractUsername(refreshToken);
-
+            Token token = tokenRepo.findByToken(refreshToken).orElseThrow();
             if (email != null) {
                 var user = userRepo.findUserByEmail(email)
                         .orElseThrow();
 
                 if (jwtService.isTokenValid(refreshToken, user)) {
+                    tokenRepo.revokeAccessTokensForUser(user.getId(), TokenType.ACCESS);
                     String accessToken = jwtService.generateToken(user);
+                    Token build = Token.builder()
+                            .user(user)
+                            .token(accessToken)
+                            .type(TokenType.ACCESS)
+                            .isExpired(false)
+                            .isRevoked(false)
+                            .build();
+                    tokenRepo.save(build);
+
                     Map<String, Object> authResponse = new HashMap<>();
                     authResponse.put("access_token", accessToken);
 //                    authResponse.put("refresh_token", refreshToken);
@@ -84,7 +89,7 @@ public class AuthenticationService {
         }
     }
 
-    public User currentUser(){
+    public User currentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
