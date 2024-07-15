@@ -1,8 +1,6 @@
 package tech.kibetimmanuel.snagifyapi.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,9 +12,9 @@ import tech.kibetimmanuel.snagifyapi.dto.JobApplicationUpdateRequest;
 import tech.kibetimmanuel.snagifyapi.entity.JobApplication;
 import tech.kibetimmanuel.snagifyapi.service.AuthenticationService;
 import tech.kibetimmanuel.snagifyapi.service.JobApplicationService;
+import tech.kibetimmanuel.snagifyapi.service.impl.JobApplicationServiceImpl;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,7 +22,7 @@ import java.util.UUID;
 @RequestMapping("/applications")
 @RequiredArgsConstructor
 public class JobApplicationController {
-    private final JobApplicationService  jobApplicationService;
+    private final JobApplicationService jobApplicationService;
     private final AuthenticationService authenticationService;
 
     @PostMapping
